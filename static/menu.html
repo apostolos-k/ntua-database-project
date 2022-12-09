@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Στατιστικά / αναζητήσεις</title>
+  <style>
+    body {
+    	background-size: cover;
+    	background-attachment: fixed;
+    	background-repeat: repeat;
+    	background-color: #cccccc;
+    }
+    button, input[type="button"] {
+	background: #ad9163;
+	margin: 2px 5px;
+	font-size: 1.5rem;
+	color: #fff;
+	padding: 7px 15px 7px 15px;
+	text-decoration: none;
+	border: 1px solid #345109;
+	border-radius: 0.2rem;
+        margin-top: 2rem;
+    }
+    button:hover{
+	background: #d89b33;
+    }
+  </style>
+
+</head>
+
+<body>
+
+ <div id="form1">
+  <script src="https://www.cognitoforms.com/f/seamless.js" data-key="QAY5pZroeE2SW1F4CPTGJQ" data-form="4"></script>
+  <script> /* prefill some fields */
+   var prefilling = "";
+   /* Cognito.prefill({"foo":1, "Name":{"First":"John","Last":"Smith"}}); */
+   // πάρε την τιμή της παραμέτρου cognito_prefill_data από το URL
+   // window.location.search = ?cognito_prefill_data=ABC
+   const params = new URLSearchParams(window.location.search);
+   var cognito_prefill_data = params.get("cognito_prefill_data") || "";
+   console.log(cognito_prefill_data);
+   var cognito_prefill_obj = {};
+   if (cognito_prefill_data != ""){
+     try {
+       cognito_prefill_obj = JSON.parse(cognito_prefill_data);
+     } catch(e){ /* ignore error */ }
+   } 
+
+
+   Cognito.prefill(cognito_prefill_obj);
+/*
+{
+     "Σχέση":"Στατιστικά",
+     "Στατιστικά":{
+       "ΈργαΕπιχορηγήσειςτιμή": "13429",
+       "Προγράμματατιμή": "443",
+       "Οργανισμοίτιμή": "50",
+       "Ερευνητέςτιμή": "3889",
+       "ΕπιστημονικάΠεδίατιμή": "47",
+       "Στελέχητιμή": "15"
+   }}
+*/
+  </script>
+ </div>
+ <!-- insert additional style tags directly underneath the code to include your CSS. Include the form ID in front of the CSS property: -->
+ <style> 
+   #form1 { font-family: "Open Sans",Helvetica,sans-serif;}
+   #form1 .cog-form__content {margin: 1rem; padding: 2rem;} 
+   #form1 .cog-abuse, #form1 .cog-branding, #form1 .cog-button--submit { display: none; }
+
+   /* statistics section */
+   #form1 .cog-field--17-7,   /* ΈργαΕπιχορηγήσειςτιμή */
+   #form1 .cog-field--17-9,   /* Προγράμματατιμή */
+   #form1 .cog-field--17-11,  /* Οργανισμοίτιμή */
+   #form1 .cog-field--17-13,  /* Ερευνητέςτιμή */
+   #form1 .cog-field--17-15,  /* ΕπιστημονικάΠεδίατιμή */
+   #form1 .cog-field--17-17,  /* Στελέχητιμή */
+   dummy_entry
+    { font-size: 120%;}
+   #form1 section.cog-field--17 h2 {
+     margin-bottom: 0.4rem;
+   }
+   #form1 section.cog-field--17 div.cog-row {
+     background-color: #f0f0f0;
+     line-height: 0.0rem;
+   }
+  </style>
+
+ <div style="text-align:center">
+   <button id="search_button" class="search_button" style="display:none;" onclick="javascript:process_form();">Αναζήτηση</button>
+ </div>
+
+<script>
+/* block form submit on Enter Key press; code taken from https://stackoverflow.com/questions/911071/javascriptblock-form-submit-on-enter-key-press */
+
+if (document.addEventListener) {
+    document.getElementById('form1').addEventListener('keypress',HandleKeyPress,false);
+} else {
+    document.getElementById('form1').onkeypress = HandleKeyPress;
+}
+function HandleKeyPress(e) {
+    switch (e.keyCode) {
+        case e.DOM_VK_ENTER:
+        if (e.preventDefault)
+            e.preventDefault();
+    else e.returnValue = false;
+    }
+}
+</script>
+
+
+  <script> /* περίμενε να φορτωθεί η φόρμα πριν εμφανισθεί το πλήκτρο Αναζήτηση */
+   (function() {
+      var breakOut = false;
+      var timeout = setInterval(function() {
+        var el = document.querySelector(".cog-form");
+        if (el) {   // έλεγξε αν έχει φορτωθεί η φόρμα
+           // αν ναι, εμφάνισε το πλήκτρο Αναζήτηση και βγες από τον ατέρμονα βρόγχο
+           // το πλήκτρο "Υποβολή" των cognitoforms είναι άχρηστο, αφαίρεσέ το
+           var c = document.querySelector(".cog-button--submit");
+           if (c) c.parentNode.removeChild(c);
+           document.getElementById("search_button").style["display"] = "inline";
+           clearInterval(timeout);
+        }
+      }, 200);    // check every 200 milliseconds
+  })();
+
+
+
+
+
+  function process_form(){
+
+    var userInput = {}
+    document.querySelectorAll("label").forEach(function(l){
+      var fieldLabel=l.innerText;
+      var fieldId=l.htmlFor;
+      var fieldValue;
+      if (fieldId) {
+        var el=document.getElementById(fieldId);
+        if (el) { 
+          // sanitize user input; no \'s allowed; any ' char gets doubled
+          fieldValue=el.value.replace(/\\/g,"").replace(/'/g,"''");
+          userInput[fieldLabel] = fieldValue;
+          // αν το πεδίο γονέας είναι τύπου date, μορφοποίησε το περιεχόμενο
+          if (el.parentElement.className.includes("-date-")) userInput[fieldLabel] = toISOdate(fieldValue);
+        }
+      }
+    })
+    console.log(userInput);
+
+    // ποια ερώτηση επελέγη;
+    var menu_selection = "";
+    var menu_selection_el = document.querySelector("fieldset")
+    if (menu_selection_el) menu_selection_el.elements.forEach(function(e){
+     if (e.checked) menu_selection = e.value;
+    })
+    var data="";
+    console.log("επιλογή:", menu_selection);
+
+
+    switch(menu_selection)
+    {
+    case 'Στατιστικά':
+          // do nothing
+          break;
+    case 'Έργα / Επιχορηγήσεις':
+          // αν δεν επελέγη κανένα κριτήριο επιλογής, μην κάνεις τίποτα
+          var criteria_set =
+            userInput['Ημερομηνία']     ||
+            userInput['Διάρκεια (έτη)'] ||
+            userInput['ΑΜΚΑ στελέχους'] ;
+          if (!criteria_set) {
+            console.log("Δεν ορίστηκαν κριτήρια για αναζήτηση στην επιλογή Έργα / Επιχορηγήσεις");
+          } else {
+            window.open("/question_3_1.html?" +
+             (userInput['Ημερομηνία']     ? "&SEARCH_DATE="       +encodeURIComponent(userInput['Ημερομηνία']) :"") +
+             (userInput['Διάρκεια (έτη)'] ? "&SEARCH_DIARKIA="    +encodeURIComponent(userInput['Διάρκεια (έτη)']) :"") +
+             (userInput['ΑΜΚΑ στελέχους'] ? "&SEARCH_STELEXOSID=" +encodeURIComponent(userInput['ΑΜΚΑ στελέχους']) :"")
+            , "_blank");
+          }
+          break;
+    case 'Όψεις του σχεσιακού μοντέλου':
+          data = userInput['Όψη προς θέαση'] || ''; 
+          if (data == "Έργα/επιχορηγήσεις ανά ερευνητή"){
+            // αν δεν επελέγη κανένα κριτήριο επιλογής, μην κάνεις τίποτα
+            var criteria_set =
+              userInput['Kωδικός έργου']    ||
+              userInput['ΑΜΚΑ ερευνητή']    ||
+              userInput['Επώνυμο ερευνητή'] ;
+            if (!criteria_set) {
+              console.log("Δεν ορίστηκαν κριτήρια για αναζήτηση στην όψη Έργα/επιχορηγήσεις ανά ερευνητή");
+            } else {
+              window.open("/question_3_2a.html?" +
+                (userInput['Kωδικός έργου']    ? "&SEARCH_ERGOID="           +encodeURIComponent(userInput['Kωδικός έργου']) :"") +
+                (userInput['ΑΜΚΑ ερευνητή']    ? "&SEARCH_EREVNITISID="      +encodeURIComponent(userInput['ΑΜΚΑ ερευνητή']) :"") +
+                (userInput['Επώνυμο ερευνητή'] ? "&SEARCH_EREVNITISEPONIMO=" +encodeURIComponent(userInput['Επώνυμο ερευνητή'].toUpperCase()) :"")
+                , "_blank");
+            }
+            break;
+          }
+
+          if (data == "Ηλικιακή κατανομή ερευνητών") {
+            window.open("/question_3_2b.html", "_blank");
+            break;
+          }
+    case 'Ερευνητικά πεδία που αποκτούν ενδιαφέρον':
+          data = userInput['Επιστημονικό πεδίο'] || ''; 
+          window.open("/question_3_3.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    case 'Οργανισμοί με τον ίδιο αριθμό έργων':
+          data = userInput['Αριθμός έργων'] || ''; 
+          window.open("/question_3_4.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    case 'Κορυφαία ζεύγη πεδίων διεπιστημονικών έργων':
+          data = userInput['Αριθμός κορυφαίων πεδίων προς θέαση'] || ''; 
+          window.open("/question_3_5.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    case 'Νέοι ερευνητές με συμμετοχή σε πολλά έργα':
+          data = userInput['Μέγιστη ηλικία ερευνητή'] || ''; 
+          window.open("/question_3_6.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    case 'Στελέχη με τις μεγαλύτερες χρηματοδοτήσεις σε εταιρεία':
+          data = userInput['Αριθμός κορυφαίων στελεχών προς θέαση'] || ''; 
+          window.open("/question_3_7.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    case 'Ερευνητές συμμετέχοντες σε πολλά έργα χωρίς παραδοτέα':
+          data = userInput['Ελάχιστος αριθμός έργων χωρίς παραδοτέα'] || ''; 
+          window.open("/question_3_8.html?data="+encodeURIComponent(data), "_blank");
+          break;
+    default:
+          // do nothing
+    }
+
+
+
+
+
+  function toISOdate(s){ // convert "d/m/y" date string to "YYYY-MM-DD"
+    if (!s) return (s);
+    var parts=s.split("/");
+    if (parts[0].length == 1) parts[0] = "0" + parts[0];   // convert 7 to 07
+    if (parts[1].length == 1) parts[1] = "0" + parts[1];   // convert 7 to 07
+    return (parts[2]+"-"+parts[1]+"-"+parts[0])
+  }
+  }
+  </script>
+
+</body>
+
+</html>

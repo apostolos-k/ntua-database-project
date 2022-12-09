@@ -1,0 +1,37 @@
+{
+  "name": "project",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Author",
+  "keywords": [
+    "gatsby","project"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies-comments": {
+    "webpage creation": "gatsby-plugin-manifest gatsby-plugin-react-helmet react-helmet",
+    "postgres interface": "pg pg-native pg-connection-string",
+    "appUser": "jsonwebtoken",
+    "end of comments": ""
+  },
+  "dependencies": {
+    "pg": "^8.7.1",
+    "pg-native": "^3.0.0",
+    "pg-connection-string": "^2.5.0",
+
+
+    "gatsby-plugin-manifest": "^4.13.0",
+    "gatsby-plugin-react-helmet": "^5.13.0",
+    "gatsby-background-image": "^1.6.0",
+    "react-helmet": "^6.1.0",
+
+    "gatsby": "^4.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}

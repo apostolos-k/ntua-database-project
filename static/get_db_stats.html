@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+
+<style>
+body {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+
+  background-color: beige;
+}
+
+.loader {
+  display: block;
+  width: 100px;
+  height: 100px;
+  position: relative;
+  transform-origin: 63px 63px;
+  animation: spin 1s infinite linear;
+}
+.loader .spinner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-width: 0px 0px 26px 26px;
+  border-style: solid;
+  border-color: transparent;
+}
+.loader .spinner.yellow {
+  border-left-color: #ffff99;
+}
+.loader .spinner.orange {
+  border-left-color: #ffcc66;
+  transform: rotate(-45deg);
+}
+.loader .spinner.red {
+  border-left-color: #ff9966;
+  transform: rotate(-90deg);
+}
+.loader .spinner.pink {
+  border-left-color: #ff6699;
+  transform: rotate(-135deg);
+}
+.loader .spinner.violet {
+  border-left-color: #cc66cc;
+  transform: rotate(-180deg);
+}
+.loader .spinner.mauve {
+  border-left-color: #cc99cc;
+  transform: rotate(-225deg);
+}
+.loader .spinner.light-yellow {
+  border-left-color: #fffad5;
+  transform: rotate(-270deg);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+</style>
+</html>
+<body>
+
+<div class="page_title">
+<h5>Φόρτωση δεδομένων...</h5>
+</div>
+<div class='loader'>
+  <div class='spinner yellow'></div>
+  <div class='spinner orange'></div>
+  <div class='spinner red'></div>
+  <div class='spinner pink'></div>
+  <div class='spinner violet'></div>
+  <div class='spinner mauve'></div>
+  <div class='spinner light-yellow'></div>
+</div>
+
+
+
+
+
+<script>
+
+
+  // Step1: send a POST to the postgres server and get some statistics
+  // Step2: load menu.html passing some cognitoforms prefill data
+
+
+  // Step1
+
+  const postgresbotURL = "/api/postgresbot";
+
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function() {
+    var respObj;
+    try {
+      respObj = JSON.parse(xhr.responseText);
+    }
+    catch(e) {
+      console.log("error:",e);
+      return;
+    }
+    if (respObj.error) {
+      console.log(respObj.error);
+      return;
+    }
+console.log("response:\n"+JSON.stringify(respObj, null, 2))
+
+    if (respObj && respObj.rows && Array.isArray(respObj.rows)){
+      var prefill_data = {
+        "Σχέση":"Στατιστικά",
+        "Στατιστικά":{
+/*
+       "ΈργαΕπιχορηγήσειςτιμή": "129",
+       "Προγράμματατιμή": "43",
+       "Οργανισμοίτιμή": "51",
+       "Ερευνητέςτιμή": "389",
+       "ΕπιστημονικάΠεδίατιμή": "17",
+       "Στελέχητιμή": "25"
+*/
+      }};
+
+
+      respObj.rows.forEach(function (r){
+        if (r.table_name == 'ergo') prefill_data["Στατιστικά"]['ΈργαΕπιχορηγήσειςτιμή'] =r.row_count;
+        if (r.table_name == 'programma') prefill_data["Στατιστικά"]['Προγράμματατιμή'] =r.row_count;
+        if (r.table_name == 'organismos') prefill_data["Στατιστικά"]['Οργανισμοίτιμή'] =r.row_count;
+        if (r.table_name == 'erevnitis') prefill_data["Στατιστικά"]['Ερευνητέςτιμή'] =r.row_count;
+        if (r.table_name == 'epist_pedio') prefill_data["Στατιστικά"]['ΕπιστημονικάΠεδίατιμή'] =r.row_count;
+        if (r.table_name == 'stelexos') prefill_data["Στατιστικά"]['Στελέχητιμή'] =r.row_count;
+      });
+      console.log(JSON.stringify(prefill_data));
+
+
+      // Step 2: load menu
+      window.location.replace("/menu.html?cognito_prefill_data="
+         +encodeURIComponent(JSON.stringify(prefill_data)));
+    }
+  };
+
+// get row count for all tables
+// https://stackoverflow.com/questions/2596670/how-do-you-find-the-row-count-for-all-your-tables-in-postgres
+const pg_query = hereDoc(function() {
+      /*!
+
+SELECT table_schema, table_name, (xpath('/row/cnt/text()', xml_count))[1]::text::int as row_count 
+FROM ( 
+  select table_name, table_schema, 
+    query_to_xml(format('select count(*) as cnt from %I.%I', table_schema, 
+    table_name), false, true, '') as xml_count 
+  from information_schema.tables 
+  where table_schema = 'public'   --<< change here for the schema you want
+    and table_name != 'pg_stat_statements' 
+  order by table_name 
+) t 
+;
+
+     */
+    });
+
+
+  console.log(pg_query);
+
+  xhr.open("POST", postgresbotURL, true);
+  const boundary = 'EB2Wx7TGN4CS0MxeJMMDaiCvmUShmMGp';
+  const data =
+    "--" + boundary + "\r\n" +
+    "Content-Disposition: form-data; name=\"pg_query\"\r\n" + 
+    "\r\n" +
+    pg_query + "\r\n" +
+    "--" + boundary + "--" + "\r\n"
+  ;
+  xhr.setRequestHeader("Content-Type","multipart/form-data; boundary=" + boundary);
+  xhr.send("\r\n" + data);
+
+
+
+
+
+    
+    // https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+    function hereDoc(f) {
+      return f.toString().
+      replace(/^[^\/]+\/\*!?/, '').
+      replace(/\*\/[^\/]+$/, '');
+    }
+  </script>
+
+</body>
+</html>
+

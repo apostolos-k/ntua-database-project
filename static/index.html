@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>ΕΛ.ΙΔ.Ε.Κ.</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+
+  <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <style>
+@font-face {
+  font-family: Roboto-Regular;
+  src: url(colorlib_tables/fonts/Roboto/Roboto-Regular.ttf)
+}
+
+@font-face {
+  font-family: Roboto-Bold;
+  src: url(colorlib_tables/fonts/Roboto/Roboto-Bold.ttf)
+}
+
+    body, html {
+      height: 100%;
+      margin: 0;
+      font: 400 15px/1.8 "Roboto", sans-serif;
+      color: #777;
+    }
+    
+    .bgimg {
+      position: relative;
+      opacity: 0.65;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-image: url("/index_background.jpg");
+      height: 100%;
+    }
+    
+    .caption {
+      position: absolute;
+      left: 0;
+      top: 20%;
+      width: 100%;
+      text-align: center;
+      color: #000;
+    }
+    
+    .caption span.border {
+      background-color: #111;
+      color: #fff;
+      padding: 0.80rem;
+      font-size: 25px;
+      letter-spacing: 0.7rem;
+    }
+    
+    .logo_image{
+      height: 10rem;
+      padding: 3rem;
+    }
+    .entry{
+      font: 200 2rem/1.8 sans-serif;
+      padding-left: 3rem;
+      padding-right: 3rem;
+      margin-top: 2rem;
+      float: right;
+      color: #fff;
+    }
+  </style>
+</head>
+
+
+<body>
+  <noscript>Αυτή η εφαρμογή απαιτεί να είναι ενεργοποιημένη η JavaScript στον φυλλομετρητή σας.</noscript>
+
+
+  <div class="bgimg">
+    <div class="caption">
+      <span class="border">ΕΛ.ΙΔ.Ε.Κ.</span>
+      <div>
+        <img class="logo_image" src="android-chrome-512x512.png" />
+      </div>
+      <span class="border">Ελληνικό Ίδρυμα Έρευνας & Καινοτομίας</span>
+    </div><a class="entry" href="/get_db_stats.html">Είσοδος</a>
+  </div>
+</body>
+
+</html>

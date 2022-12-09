@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Κορυφαία ζεύγη πεδίων διεπιστημονικών έργων</title>
+
+
+<!-- scrollable table with fixed header; CSS code taken from
+https://colorlib.com/etc/tb/Table_Fixed_Header/index.html
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/animate/animate.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/select2/select2.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/util.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/main.css">
+<meta name="robots" content="noindex, follow">
+
+
+<style>
+.page_title{
+width:30%;
+margin:auto;
+margin-top: 1rem;
+font-family: Roboto-Regular;
+font-size: 15px;
+color: #808080;
+line-height: 1.4;
+}
+
+.column1{ width:15%;}
+.column2{ width:35%;}
+.column3{ width:35%;}
+
+</style>
+</head>
+
+<body>
+<div id="page_title" class="page_title" style="display:none;">
+      <h5 id="title_h5">Κορυφαία ζεύγη πεδίων διεπιστημονικών έργων</h5>
+</div>
+
+<div id="limiter" style="display:none;" class="limiter">
+<div class="container-table100">
+<div class="wrap-table100">
+<div class="table100 ver1 m-b-110">
+<div class="table100-head">
+<table>
+<thead>
+<tr class="row100 head">
+<th class="cell100 column1">  Έργα</th>
+<th class="cell100 column2">Πεδίο 1</th>
+<th class="cell100 column3">Πεδίο 2</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="table100-body js-pscroll">
+<table>
+<tbody id="data_table_body">
+<!--
+sample row (rows will be added to this table automatically)
+  <tr class="row100 body">
+  <td class="cell100 column2">Like a butterfly</td>
+  <td class="cell100 column3">Boxing</td>
+  <td class="cell100 column4">9:00 AM - 11:00 AM</td>
+  </tr>
+-->
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="colorlib_tables/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script src="colorlib_tables/vendor/bootstrap/js/popper.js"></script>
+<script src="colorlib_tables/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<script src="colorlib_tables/vendor/select2/select2.min.js"></script>
+
+<script src="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script>
+		$('.js-pscroll').each(function(){
+			var ps = new PerfectScrollbar(this);
+
+			$(window).on('resize', function(){
+				ps.update();
+			})
+		});
+
+
+	</script>
+
+<script src="colorlib_tables/js/main.js"></script>
+
+  <script>
+    // το __DATA__ παρακάτω θα αντικατασταθεί με την τιμή της παραμέτρου URL "data"
+    var pg_query = hereDoc(function() {
+      /*!
+
+WITH zevgi_pediwn AS(
+SELECT T1.ergoid, T1.epist_pedio_onoma AS n1, T2.epist_pedio_onoma AS n2
+FROM epist_pedio_ergou AS T1
+JOIN epist_pedio_ergou AS T2
+ON T1.ergoid = T2.ergoid
+WHERE (
+-- προφανώς δεν μας ενδιαφέρει η περίπτωση κοινού επιστημονικού πεδίου
+-- και επειδή η σχέση είναι συμμετρική, μπορούμε να επιλέξουμε μόνο
+-- τα ζεύγη που το πρώτο όνομα πεδίου είναι μεγαλύτερο από το δεύτερο
+  T1.epist_pedio_onoma > T2.epist_pedio_onoma
+))
+SELECT COUNT(zevgi_pediwn.ergoid) AS cnt, n1,n2
+FROM zevgi_pediwn
+GROUP BY (n1,n2)                                     
+ORDER BY cnt DESC
+LIMIT __DATA__
+;
+      */
+    });
+    
+    
+    // πάρε την τιμή της παραμέτρου data από το URL
+    // window.location.search = ?data=ABC
+    // (αγνόησε επικίνδυνους χαρακτήρες, π.χ. το μονό εισαγωγικό ' )
+    const params = new URLSearchParams(window.location.search);
+    var data = params.get("data");
+    if (data) data=data.replace(/'/g,'');
+    // και αντικατάστησέ την στον παραπάνω κώδικα SQL
+    pg_query = pg_query.replace("__DATA__", data);
+    console.log(data);
+    console.log(pg_query);
+    
+    // Step1: send a POST to the postgres bot to get some statistics
+    
+    const postgresbotURL = "/api/postgresbot";
+    
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      var respObj;
+      try {
+        respObj = JSON.parse(xhr.responseText);
+      } catch (e) {
+        console.log("error:", e);
+        return;
+      }
+      if (respObj.error) {
+        console.log(respObj.error);
+        return;
+      }
+      //console.log("postgresbot response:\n" + JSON.stringify(respObj, null, 2));
+    
+
+
+      var el = document.getElementById("page_title");
+      if (el) el.style["display"] = "flex";   // εμφάνισε τον υπέρτιτλο
+      el = document.getElementById("limiter");
+      if (el) el.style["display"] = "flex";   // εμφάνισε το κυρίως περιεχόμενο
+      el = document.getElementById("title_h5");
+       if (el) el.innerHTML += " (top-" + data + ")";
+    
+      // Step 2: update table
+      var row_counter = 0;
+      if (respObj && respObj.rows && Array.isArray(respObj.rows)) {
+        var dt_element = document.getElementById("dtitle");
+        if (dt_element) dt_element.innerHTML = '';
+    
+        respObj.rows.forEach(function(r) {
+    
+          // δυναμική δημιουργία στοιχείου <tr> (γραμμή πίνακα)
+          // που περιέχει στήλες <td>
+          var el_tr = document.createElement("tr");
+          el_tr.className += " row100 body";
+          var el_td;
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "1";
+          el_td.innerHTML = ++row_counter +".    " +
+             r.cnt;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "2";
+          el_td.innerHTML = r.n1;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "3";
+          el_td.innerHTML = r.n2;
+          el_tr.appendChild(el_td);
+    
+          var tb_element = document.getElementById("data_table_body"); // table body
+          if (tb_element) tb_element.appendChild(el_tr);
+        });
+    
+      }
+    
+    
+    };
+    
+    
+    xhr.open("POST", postgresbotURL, true);
+    const boundary = 'EB2Wx7TGN4CS0MxeJMMDaiCvmUShmMGp';
+    const post_data =
+      "--" + boundary + "\r\n" +
+      "Content-Disposition: form-data; name=\"pg_query\"\r\n" +
+      "\r\n" +
+      pg_query + "\r\n" +
+      "--" + boundary + "--" + "\r\n";
+    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+    xhr.send("\r\n" + post_data);
+    
+    // https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+    function hereDoc(f) {
+      return f.toString().
+      replace(/^[^\/]+\/\*!?/, '').
+      replace(/\*\/[^\/]+$/, '');
+    }
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,144 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ηλικιακή κατανομή ερευνητών</title>
+<link type="text/css" media="handheld, all" href="question_3_2b.css" rel="stylesheet" />
+<style>
+html, body {
+  height: 500px;
+  color: #333;
+}
+.content {
+  width: 60%;
+  margin: auto;
+}
+dt {
+  margin: 3rem;
+}
+</style>
+</head>
+
+
+<div class="content">
+
+
+<dl id="bar_graph">
+  <dt id="dtitle">
+   Φόρτωση στοιχείων...
+  </dt>
+<!-- sample bar
+  <dd class="percentage percentage-11"><span class="text">20-30 11.33%</span></dd>
+-->
+</dl>
+
+</div>
+
+
+
+<script>
+const pg_query = hereDoc(function() {/*!
+
+-- ηλικιακή κατανομή ερευνητών (χωρίς προσωπικά στοιχεία)
+-- χρησιμοποιώντας την όψη (VIEW) hlikia_erevnitwn (age)
+
+-- για να φτιάξουμε ραβδόγραμμα κατανομής ηλικιών
+-- ανά δεκαετία από 20 έως 100 έτη
+WITH katanomi AS (
+  SELECT count(age), width_bucket(age, 20, 100, 8) AS age_category
+  FROM hlikia_erevnitwn
+  GROUP by age_category
+  ORDER by age_category
+)
+SELECT
+  (age_category - 1)*10+20 AS low,
+  (age_category)*10+20 as high,
+  count
+FROM katanomi;
+;
+
+*/});
+
+console.log(pg_query);
+
+
+// Step1: send a POST to the postgres bot to get some statistics
+
+const postgresbotURL = "/api/postgresbot";
+
+var xhr = new XMLHttpRequest();
+xhr.onload = function() {
+  var respObj;
+  try {
+    respObj = JSON.parse(xhr.responseText);
+  } catch (e) {
+    console.log("error:", e);
+    return;
+  }
+  if (respObj.error) {
+    console.log(respObj.error);
+    return;
+  }
+  //console.log("postgresbot response:\n" + JSON.stringify(respObj, null, 2))
+
+  // Step 2: update graph
+  if (respObj && respObj.rows && Array.isArray(respObj.rows)) {
+    var dt_element = document.getElementById("dtitle");
+    if (dt_element) dt_element.innerHTML = 'Ηλικιακή κατανομή ερευνητών';
+
+    var cnt_total = 0;
+    respObj.rows.forEach(function(r) {
+      cnt_total += (1.0 * r.count);  // add as a number, not as a string
+    });
+
+    respObj.rows.forEach(function(r) {
+
+      // δυναμική δημιουργία στοιχείου <dd> (νέα ράβδος στο ραβδόγραμμα)
+      // με μήκος ανάλογο του r.count 
+      // και επεξηγηματικό κείμενο που περιέχεται σε νέο <span>
+      // (όρια περιοχής, αριθμός ερευνητών σε αυτή την ηλικιακή περιοχή)
+      var percentage = (cnt_total > 0 ? (r.count / cnt_total * 100) : 0);
+      var el_dd = document.createElement("dd");
+      var el_span = document.createElement("span");
+      el_dd.className += " percentage";
+      el_dd.className += " percentage-" + Math.round(percentage);
+      el_span.className += "text";
+      el_span.textContent =
+        r.low + "-" + r.high + ":  " +
+        r.count + //" " + (r.count == 1 ? 'ερευνητής' : 'ερευνητές') +
+        "  (" +
+        Math.round(percentage) + "%)  ";
+      el_dd.appendChild(el_span);
+
+      var dl_element = document.getElementById("bar_graph");
+      if (dl_element) dl_element.appendChild(el_dd);
+    });
+
+  }
+
+
+};
+
+
+xhr.open("POST", postgresbotURL, true);
+const boundary = 'EB2Wx7TGN4CS0MxeJMMDaiCvmUShmMGp';
+const data =
+  "--" + boundary + "\r\n" +
+  "Content-Disposition: form-data; name=\"pg_query\"\r\n" +
+  "\r\n" +
+  pg_query + "\r\n" +
+  "--" + boundary + "--" + "\r\n";
+xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+xhr.send("\r\n" + data);
+
+// https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+function hereDoc(f) {
+  return f.toString().
+      replace(/^[^\/]+\/\*!?/, '').
+      replace(/\*\/[^\/]+$/, '');
+}
+</script>
+
+
+</body>
+
+</html>

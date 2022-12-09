@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Ερευνητές και έργα στα οποία εργάζονται</title>
+
+
+<!-- scrollable table with fixed header; CSS code taken from
+https://colorlib.com/etc/tb/Table_Fixed_Header/index.html
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/animate/animate.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/select2/select2.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/util.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/main.css">
+<meta name="robots" content="noindex, follow">
+
+
+<style>
+.page_title{
+width:30%;
+margin:auto;
+margin-top: 1rem;
+font-family: Roboto-Regular;
+font-size: 15px;
+color: #808080;
+line-height: 1.4;
+}
+
+.column1 {width: 15%;}
+.column2 {width: 15%;}
+.column3 {width: 60%;}
+</style>
+</head>
+
+<body>
+<div id="page_title" class="page_title" style="display:none;">
+      <h5 id="title_h5">Ερευνητές και έργα στα οποία εργάζονται</h5>
+</div>
+
+<div id="limiter" style="display:none;" class="limiter">
+<div class="container-table100">
+<div class="wrap-table100">
+<div class="table100 ver1 m-b-110">
+<div class="table100-head">
+<table>
+<thead>
+<tr class="row100 head">
+<th class="cell100 column1">Κωδικός έργου</th>
+<th class="cell100 column2">ΑΜΚΑ</th>
+<th class="cell100 column3">Όνομα ερευνητή</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="table100-body js-pscroll">
+<table>
+<tbody id="data_table_body">
+<!--
+sample row (rows will be added to this table automatically)
+  <tr class="row100 body">
+  <td class="cell100 column2">Like a butterfly</td>
+  <td class="cell100 column3">Boxing</td>
+  <td class="cell100 column4">9:00 AM - 11:00 AM</td>
+  </tr>
+-->
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="colorlib_tables/vendor/jquery/jquery-3.2.1.min.js"></script>
+<script src="colorlib_tables/vendor/bootstrap/js/popper.js"></script>
+<script src="colorlib_tables/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="colorlib_tables/vendor/select2/select2.min.js"></script>
+<script src="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script>
+		$('.js-pscroll').each(function(){
+			var ps = new PerfectScrollbar(this);
+
+			$(window).on('resize', function(){
+				ps.update();
+			})
+		});
+
+
+	</script>
+
+<script src="colorlib_tables/js/main.js"></script>
+
+  <script>
+    // τα SEARCH_xxx παρακάτω
+    // θα αντικατασταθούν με τιμές που δίνονται ως παράμετροι URL
+
+    // !! αν κάποιο από αυτές δεν ορισθεί το __WHEREx__ θα μετατραπεί σε '--'
+    // !! δηλαδή αντίστοιχη γραμμή θα γίνει σχόλιο.
+''
+    var pg_query = hereDoc(function() {
+      /*!
+    
+-- με χρήση της όψης erga_ana_erevniti
+SELECT ergoid, erevnitisid, onomateponimo  FROM erga_ana_erevniti
+WHERE (
+__WHERE1__ (ergoid = 'SEARCH_ERGOID') AND
+__WHERE2__ (erevnitisid = 'SEARCH_EREVNITISID') AND
+-- ψάξιμο με κάποια αρχικά γράμματα του επωνύμου:  LIKE 'ABC%'
+__WHERE3__ (onomateponimo LIKE CONCAT('SEARCH_EREVNITISEPONIMO', '%')) AND
+TRUE
+)
+
+;
+    
+      */
+    });
+    
+    
+    // πάρε την τιμή της παραμέτρου από το URL
+    // window.location.search = ?data=ABC
+    // (αγνόησε επικίνδυνους χαρακτήρες, π.χ. το μονό εισαγωγικό ' )
+    const params = new URLSearchParams(window.location.search);
+    var SEARCH_ERGOID = params.get("SEARCH_ERGOID");
+    if (SEARCH_ERGOID) SEARCH_ERGOID=SEARCH_ERGOID.replace(/'/g,'');
+    var SEARCH_EREVNITISID = params.get("SEARCH_EREVNITISID");
+    if (SEARCH_EREVNITISID) SEARCH_EREVNITISID=SEARCH_EREVNITISID.replace(/'/g,'');
+    var SEARCH_EREVNITISEPONIMO = params.get("SEARCH_EREVNITISEPONIMO");
+    if (SEARCH_EREVNITISEPONIMO) SEARCH_EREVNITISEPONIMO=SEARCH_EREVNITISEPONIMO.replace(/'/g,'');
+
+    // και αντικατάστησέ την στον παραπάνω κώδικα SQL
+    if (SEARCH_ERGOID == null || ((typeof SEARCH_ERGOID) == "undefined") || SEARCH_ERGOID == "") {
+      pg_query = pg_query.replace("__WHERE1__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace(/SEARCH_ERGOID/g, SEARCH_ERGOID);
+      pg_query = pg_query.replace("__WHERE1__", "")  // ενεργοποίησε τον περιορισμό
+    };
+    if (SEARCH_EREVNITISID == null || ((typeof SEARCH_EREVNITISID) == "undefined") || SEARCH_EREVNITISID == "") {
+      pg_query = pg_query.replace("__WHERE2__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace("SEARCH_EREVNITISID", SEARCH_EREVNITISID);
+      pg_query = pg_query.replace("__WHERE2__", "")  // ενεργοποίησε τον περιορισμό
+    };
+    if (SEARCH_EREVNITISEPONIMO == null || ((typeof SEARCH_EREVNITISEPONIMO) == "undefined") || SEARCH_EREVNITISEPONIMO == "") {
+      pg_query = pg_query.replace("__WHERE3__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace("SEARCH_EREVNITISEPONIMO", SEARCH_EREVNITISEPONIMO);
+      pg_query = pg_query.replace("__WHERE3__", "");  // ενεργοποίησε τον περιορισμό
+    }
+    console.log(pg_query);
+    
+    // Step1: send a POST to the postgres bot to get some statistics
+    
+    const postgresbotURL = "/api/postgresbot";
+    
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      var respObj;
+      try {
+        respObj = JSON.parse(xhr.responseText);
+      } catch (e) {
+        console.log("error:", e);
+        return;
+      }
+      if (respObj.error) {
+        console.log(respObj.error);
+        return;
+      }
+      //console.log("postgresbot response:\n" + JSON.stringify(respObj, null, 2));
+    
+
+
+      var el = document.getElementById("page_title");
+      if (el) el.style["display"] = "flex";   // εμφάνισε τον υπέρτιτλο
+      el = document.getElementById("limiter");
+      if (el) el.style["display"] = "flex";   // εμφάνισε το κυρίως περιεχόμενο
+
+    
+      // Step 2: update table
+      var row_counter = 0;
+      if (respObj && respObj.rows && Array.isArray(respObj.rows)) {
+        var dt_element = document.getElementById("dtitle");
+        if (dt_element) dt_element.innerHTML = '';
+   
+        respObj.rows.forEach(function(r) {
+    
+          // δυναμική δημιουργία στοιχείου <tr> (γραμμή πίνακα)
+          // που περιέχει στήλες <td>
+          var el_tr = document.createElement("tr");
+          el_tr.className += " row100 body";
+          var el_td;
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "1";
+          el_td.innerHTML = ++row_counter +".    " + r.ergoid;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "2";
+          el_td.innerHTML = r.erevnitisid;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "3";
+          el_td.innerHTML = r.onomateponimo;
+          el_tr.appendChild(el_td);
+    
+          var tb_element = document.getElementById("data_table_body"); // table body
+          if (tb_element) tb_element.appendChild(el_tr);
+        });
+    
+      }
+    
+    
+    };
+    
+    
+    xhr.open("POST", postgresbotURL, true);
+    const boundary = 'EB2Wx7TGN4CS0MxeJMMDaiCvmUShmMGp';
+    const post_data =
+      "--" + boundary + "\r\n" +
+      "Content-Disposition: form-data; name=\"pg_query\"\r\n" +
+      "\r\n" +
+      pg_query + "\r\n" +
+      "--" + boundary + "--" + "\r\n";
+    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+    xhr.send("\r\n" + post_data);
+    
+    // https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+    function hereDoc(f) {
+      return f.toString().
+      replace(/^[^\/]+\/\*!?/, '').
+      replace(/\*\/[^\/]+$/, '');
+    }
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Έργα / Επιχορηγήσεις</title>
+
+
+<!-- scrollable table with fixed header; CSS code taken from
+https://colorlib.com/etc/tb/Table_Fixed_Header/index.html
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/animate/animate.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/select2/select2.min.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/util.css">
+<link rel="stylesheet" type="text/css" href="colorlib_tables/css/main.css">
+<meta name="robots" content="noindex, follow">
+
+
+<style>
+.page_title{
+width:30%;
+margin:auto;
+margin-top: 1rem;
+font-family: Roboto-Regular;
+font-size: 15px;
+color: #808080;
+line-height: 1.4;
+}
+
+.column1 {width: 15%;}
+</style>
+</head>
+
+<body>
+<div id="page_title" class="page_title" style="display:none;">
+      <h5 id="title_h5">Έργα / Επιχορηγήσεις</h5>
+</div>
+
+<div id="limiter" style="display:none;" class="limiter">
+<div class="container-table100">
+<div class="wrap-table100">
+<div class="table100 ver1 m-b-110">
+<div class="table100-head">
+<table>
+<thead>
+<tr class="row100 head">
+<th class="cell100 column1">  Έργο</th>
+<th class="cell100 column2">Διάρκεια</th>
+<th class="cell100 column3">Ερευνητής/τίτλος</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="table100-body js-pscroll">
+<table>
+<tbody id="data_table_body">
+<!--
+sample row (rows will be added to this table automatically)
+  <tr class="row100 body">
+  <td class="cell100 column1">123</td>
+  <td class="cell100 column2">Like a butterfly</td>
+  <td class="cell100 column3">Boxing</td>
+  <td class="cell100 column4">9:00 AM - 11:00 AM</td>
+  </tr>
+-->
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="colorlib_tables/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script src="colorlib_tables/vendor/bootstrap/js/popper.js"></script>
+<script src="colorlib_tables/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<script src="colorlib_tables/vendor/select2/select2.min.js"></script>
+
+<script src="colorlib_tables/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script>
+		$('.js-pscroll').each(function(){
+			var ps = new PerfectScrollbar(this);
+
+			$(window).on('resize', function(){
+				ps.update();
+			})
+		});
+
+
+	</script>
+
+<script src="colorlib_tables/js/main.js"></script>
+
+  <script>
+    // τα SEARCH_DATE, SEARCH_DIARKIA, SEARCH_STELEXOSID παρακάτω
+    // θα αντικατασταθούν με τιμές που δίνονται ως παράμετροι URL
+
+    // !! αν κάποιο από αυτές δεν ορισθεί το __WHEREx__ θα μετατραπεί σε '--'
+    // !! δηλαδή αντίστοιχη γραμμή θα γίνει σχόλιο.
+
+    var pg_query = hereDoc(function() {
+      /*!
+ 
+WITH selected_erga2 AS ( 
+WITH selected_erga AS (
+SELECT ergo.id, ergo.enarxi, ergo.lixi, ergo.stelexosid, ergo.titlos FROM ergo
+WHERE (
+__WHERE1__ ('SEARCH_DATE' >= ergo.enarxi AND 'SEARCH_DATE' <= ergo.lixi) AND
+__WHERE2__ ((EXTRACT (YEAR FROM ergo.lixi) - EXTRACT (YEAR FROM ergo.enarxi)) =SEARCH_DIARKIA) AND
+__WHERE3__ (ergo.stelexosid = 'SEARCH_STELEXOSID') AND
+TRUE
+)
+)
+SELECT selected_erga.id AS ergoid, selected_erga.enarxi, selected_erga.lixi,
+  selected_erga.stelexosid, selected_erga.titlos,
+  ergazetai_se_ergo.erevnitisid
+
+FROM selected_erga INNER JOIN ergazetai_se_ergo
+ON selected_erga.id = ergazetai_se_ergo.ergoid
+)
+SELECT selected_erga2.ergoid,
+to_char(selected_erga2.enarxi,'DD/MM/YYYY') AS date1,
+to_char(selected_erga2.lixi,'DD/MM/YYYY') AS date2,
+  selected_erga2.stelexosid, selected_erga2.titlos,
+  erevnitis.id AS erevnitisid,
+  erevnitis.eponimo,
+  erevnitis.onoma
+FROM selected_erga2 INNER JOIN erevnitis
+ON selected_erga2.erevnitisid = erevnitis.id
+ORDER BY (selected_erga2.ergoid)
+
+;
+
+    
+      */
+    });
+    
+    
+    // πάρε την τιμή της παραμέτρου από το URL
+    // window.location.search = ?data=ABC
+    // (αγνόησε επικίνδυνους χαρακτήρες, π.χ. το μονό εισαγωγικό ' )
+    const params = new URLSearchParams(window.location.search);
+    var SEARCH_DATE = params.get("SEARCH_DATE");
+    if (SEARCH_DATE) SEARCH_DATE=SEARCH_DATE.replace(/'/g,'');
+    var SEARCH_DIARKIA = params.get("SEARCH_DIARKIA");
+    if (SEARCH_DIARKIA) SEARCH_DIARKIA=SEARCH_DIARKIA.replace(/'/g,'');
+    var SEARCH_STELEXOSID = params.get("SEARCH_STELEXOSID");
+    if (SEARCH_STELEXOSID) SEARCH_STELEXOSID=SEARCH_STELEXOSID.replace(/'/g,'');
+
+    // και αντικατάστησέ την στον παραπάνω κώδικα SQL
+    if (SEARCH_DATE == null || ((typeof SEARCH_DATE) == "undefined") || SEARCH_DATE == "") {
+      pg_query = pg_query.replace("__WHERE1__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace(/SEARCH_DATE/g, SEARCH_DATE);
+      pg_query = pg_query.replace("__WHERE1__", "")  // ενεργοποίησε τον περιορισμό
+    };
+    if (SEARCH_DIARKIA == null || ((typeof SEARCH_DIARKIA) == "undefined") || SEARCH_DIARKIA == "") {
+      pg_query = pg_query.replace("__WHERE2__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace("SEARCH_DIARKIA", SEARCH_DIARKIA);
+      pg_query = pg_query.replace("__WHERE2__", "")  // ενεργοποίησε τον περιορισμό
+    };
+    if (SEARCH_STELEXOSID == null || ((typeof SEARCH_STELEXOSID) == "undefined") || SEARCH_STELEXOSID == "") {
+      pg_query = pg_query.replace("__WHERE3__", "--")  // κάνε τον περιορισμό σχόλιο
+    } else {
+      pg_query = pg_query.replace("SEARCH_STELEXOSID", SEARCH_STELEXOSID);
+      pg_query = pg_query.replace("__WHERE3__", "");  // ενεργοποίησε τον περιορισμό
+    }
+
+    console.log(pg_query);
+    // Step1: send a POST to the postgres bot to get some statistics
+    
+    const postgresbotURL = "/api/postgresbot";
+    
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      var respObj;
+      try {
+        respObj = JSON.parse(xhr.responseText);
+      } catch (e) {
+        console.log("error:", e);
+        return;
+      }
+      if (respObj.error) {
+        console.log(respObj.error);
+        return;
+      }
+      //console.log("postgresbot response:\n" + JSON.stringify(respObj, null, 2));
+    
+
+
+      var el = document.getElementById("page_title");
+      if (el) el.style["display"] = "flex";   // εμφάνισε τον υπέρτιτλο
+      el = document.getElementById("limiter");
+      if (el) el.style["display"] = "flex";   // εμφάνισε το κυρίως περιεχόμενο
+    
+      // Step 2: update table
+      var row_counter = 0;
+      if (respObj && respObj.rows && Array.isArray(respObj.rows)) {
+        var dt_element = document.getElementById("dtitle");
+        if (dt_element) dt_element.innerHTML = '';
+    
+        respObj.rows.forEach(function(r) {
+    
+          // δυναμική δημιουργία στοιχείου <tr> (γραμμή πίνακα)
+          // που περιέχει στήλες <td>
+          var el_tr = document.createElement("tr");
+          el_tr.className += " row100 body";
+          var el_td;
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "1";
+          el_td.innerHTML = ++row_counter +".    " + r.ergoid;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "2";
+          el_td.innerHTML = r.date1 + " - " + r.date2;
+          el_tr.appendChild(el_td);
+    
+          el_td = document.createElement("td");
+          el_td.className += "cell100 column" + "3";
+          el_td.innerHTML = r.erevnitisid +
+            "  " + r.eponimo + " " + r.onoma +
+            "<br />" + r.titlos;
+          el_tr.appendChild(el_td);
+    
+    
+          var tb_element = document.getElementById("data_table_body"); // table body
+          if (tb_element) tb_element.appendChild(el_tr);
+        });
+    
+      }
+    
+    
+    };
+    
+    
+    xhr.open("POST", postgresbotURL, true);
+    const boundary = 'EB2Wx7TGN4CS0MxeJMMDaiCvmUShmMGp';
+    const post_data =
+      "--" + boundary + "\r\n" +
+      "Content-Disposition: form-data; name=\"pg_query\"\r\n" +
+      "\r\n" +
+      pg_query + "\r\n" +
+      "--" + boundary + "--" + "\r\n";
+    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+    xhr.send("\r\n" + post_data);
+    
+    // https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+    function hereDoc(f) {
+      return f.toString().
+      replace(/^[^\/]+\/\*!?/, '').
+      replace(/\*\/[^\/]+$/, '');
+    }
+  </script>
+
+</body>
+</html>
+
