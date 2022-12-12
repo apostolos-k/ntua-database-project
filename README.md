@@ -1,4 +1,4 @@
 # ntua-database-project
-Elidek's database project for Databses class of 6th semester at Ece Ntua.
+Database simulation of Hellenic Foundation for Research & Innovation (HFRI), for the Databases class of 6th semester at Ece Ntua.
 
 Link of the website: https://dblab2022.gtsb.io/
