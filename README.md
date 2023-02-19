@@ -1,5 +1,5 @@
 
-# HRFI Database
+# HFRI Database
 A project for the Databases course at Ece Ntua 2021-22, in which we simulate a database system for the Hellenic Foundation for Research & Innovation (HFRI).
 
 
