@@ -36,12 +36,12 @@ A project for the Databases course at Ece Ntua 2021-22, in which we simulate a d
 `package.json` Information about the technologies, scripts and dependencies used in the software.
 ## Screenshots
 
-Home page
+#### Home page
 
 ![Web UI Screenshot](documents/screenshot-home-page.jpg)
 
 
-Query selection page
+#### Query selection page
 
 ![Web UI Screenshot](documents/screenshot-query-page.jpg)
 
