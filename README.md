@@ -25,7 +25,7 @@ A project for the Databases course at Ece Ntua 2021-22, in which we simulate a d
 
 `/documents` Page flowchart and project report.
 
-`/sql` Scripts for creating tables and loading the database with dumy data.
+`/sql` Scripts for creating tables and loading the database with dummy data.
 
 `/src` Api for database and web interface communication.
 
